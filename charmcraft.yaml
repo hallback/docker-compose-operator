@@ -35,9 +35,10 @@ description: |
 
 # (Required for 'charm' type)
 platforms:
-  ubuntu-20.04-amd64:
-    build-on: [ubuntu@20.04:amd64]
-    build-for: [ubuntu@20.04:amd64]
+  # Not on 20.04 ATM /20250612
+  #  ubuntu-20.04-amd64:
+  #    build-on: [ubuntu@20.04:amd64]
+  #    build-for: [ubuntu@20.04:amd64]
   ubuntu-22.04-amd64:
     build-on: [ubuntu@22.04:amd64]
     build-for: [ubuntu@22.04:amd64]
