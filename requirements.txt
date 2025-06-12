@@ -1,0 +1,6 @@
+ops ~= 2.17
+python-on-whales >= 0.71
+# with the latest one (0.76) a rust compiler is needed because of pydantic-core, currently 2.33.2
+#python-on-whales == 0.71
+#pydantic == 2.7.4
+#maturin == 1.6.0
