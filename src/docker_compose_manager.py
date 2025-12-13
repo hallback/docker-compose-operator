@@ -9,7 +9,7 @@ from python_on_whales import docker, DockerClient
 from python_on_whales.exceptions import DockerException
 from jinja2 import Template
 
-DOCKER_PKGS_IO = ['docker.io', 'docker-compose', 'docker-compose-v2']
+DOCKER_PKGS_IO = ['docker.io', 'docker-compose-v2']
 
 class DockerComposeManager:
     """

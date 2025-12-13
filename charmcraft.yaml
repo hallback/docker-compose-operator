@@ -1,44 +1,33 @@
 # This file configures Charmcraft.
 # See https://juju.is/docs/sdk/charmcraft-config for guidance.
 
+
 # (Required)
 name: docker-compose
-
-
 # (Required)
 type: charm
-
-
 # (Recommended)
 title: Docker Compose
+# (Required)
+summary: A machine charm that deploys and runs workloads using docker compose.
+# (Required)
+description: |
+  The Docker Compose charm manages workloads on Juju units using Docker Compose V2.
 
+  The charm installs Docker and Docker Compose and lets the user supply a
+  docker-compose.yml file with juju config. If the running workload differs from
+  the supplied config, the charm goes into maintenance status.
+
+  The user can trigger the 'recompose' action to activate the configuration on a
+  per unit basis.
 links:
   contact: Johan Hallbäck <johan.hallback@krach.se>
   source:
     - https://github.com/hallback/docker-compose-operator
 
 
-# (Required)
-summary: A machine charm that deploys and runs workloads using docker compose.
-
-
-# (Required)
-description: |
-  A single sentence that says what the charm is, concisely and memorably.
-
-  A paragraph of one to three short sentences, that describe what the charm does.
-
-  A third paragraph that explains what need the charm meets.
-
-  Finally, a paragraph that describes whom the charm is useful for.
-
-
 # (Required for 'charm' type)
 platforms:
-  # Not on 20.04 ATM /20250612
-  #  ubuntu-20.04-amd64:
-  #    build-on: [ubuntu@20.04:amd64]
-  #    build-for: [ubuntu@20.04:amd64]
   ubuntu-22.04-amd64:
     build-on: [ubuntu@22.04:amd64]
     build-for: [ubuntu@22.04:amd64]
@@ -46,12 +35,13 @@ platforms:
     build-on: [ubuntu@24.04:amd64]
     build-for: [ubuntu@24.04:amd64]
 
-# The python lib maturin needs rustc and cargo
+
+# The python lib maturin needs rustc and cargo but packages are not needed
+# to be explicitly installed here anymore
 parts:
   charm:
-    build-packages:
-      - rustc
-      - cargo
+    plugin: charm
+    source: .
 
 
 # (Optional) Configuration options for the charm
@@ -85,6 +75,7 @@ config:
         which will be replaced accordingly.
       default:
       type: string
+
 
 actions:
   recompose:
