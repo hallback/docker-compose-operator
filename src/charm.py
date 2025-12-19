@@ -9,6 +9,7 @@ import logging
 # https://ops.readthedocs.io/en/latest
 import ops
 from ops.model import ActiveStatus, BlockedStatus, WaitingStatus, MaintenanceStatus
+from ops import ModelError
 
 # https://docs.python.org/3/library/pathlib.html
 from pathlib import Path
@@ -74,6 +75,17 @@ class DockerComposeCharm(ops.CharmBase):
         if err:
             self.unit.status = BlockedStatus("docker compose failed, examine and run recompose action")
         self.unit.status = ActiveStatus(f"start: {self.docker_compose_manager.get_status()}")
+        self.open_ports()
+
+    def open_ports(self):
+        portset = self.docker_compose_manager.get_portset()
+        logger.info(portset)
+        portlist = list()
+        for p in portset:
+            portsplit = p.split('/')
+            portlist.append(ops.Port(port=portsplit[0], protocol=portsplit[1]))
+        print(portlist)
+        self.unit.set_ports(*portlist)
 
     def _recompose_action(self, event):
         self.recompose()
@@ -87,6 +99,9 @@ class DockerComposeCharm(ops.CharmBase):
     def _on_start(self, event: ops.StartEvent):
         """We do compose on every start to prevent config drift"""
         self.recompose()
+        version = self.docker_compose_manager.get_version()
+        if version is not None:
+            self.unit.set_workload_version(version)
 
     # TODO: We should maybe have a configuration for the log file
     def _on_config_changed(self, event: ops.ConfigChangedEvent):

@@ -70,3 +70,48 @@ class DockerComposeManager:
         tmpl = Template(yaml)
         return tmpl.render(hostname = socket.gethostname(),
                            fqdn = socket.getfqdn())
+
+    def get_version(self) -> str | None:
+        """Get the running version of Docker."""
+        # We will return None here instead of throwing an error
+        try:
+            dockerversion = docker.system.info().server_version
+        except:
+            print("failure with the version")
+            sys.exit(1)
+
+        return dockerversion
+
+    def get_portset(self) -> set:
+        """
+        Generate a list of (port, protocol) tuples from the running config
+        Example: * Container 1 has "5051:443" and "5050:80"
+                 * Container 2 has "5432:5432",
+                 * Container 3 has not exposed port 5432
+        [{'443/tcp': [{'HostIp': '0.0.0.0', 'HostPort': '5051'}, {'HostIp': '::', 'HostPort': '5051'}],
+          '80/tcp': [{'HostIp': '0.0.0.0', 'HostPort': '5050'}, {'HostIp': '::', 'HostPort': '5050'}]},
+          {'5432/tcp': [{'HostIp': '0.0.0.0', 'HostPort': '5432'}, {'HostIp': '::', 'HostPort': '5432'}]},
+          {'5432/tcp': None}
+        ]
+        """
+        portset = set()
+        containerlist = docker.ps()
+        allcontainerports = list(container.network_settings.ports for container in containerlist)
+        # This is an array of dicts
+        for containerports in allcontainerports:
+            print(f"containerports: {containerports}")
+            for port in containerports:
+                intport = port.split('/')[0]
+                protocol = port.split('/')[1]
+                print(f"  port: {port}, protocol: {port}, intport: {intport}")
+                if containerports[port] == None:
+                    print(f"{port} is not forwarded and can be ignored for this container")
+                else:
+                    print(f"{port} will be processed for HostPort")
+                    # works: hp = containerports[port][0]['HostPort']
+                    for hostport in containerports[port]:
+                        hp = f"{hostport['HostPort']}/{protocol}"
+                        print(f"adding {hp} to set")
+                        portset.add(hp)
+
+        return portset
